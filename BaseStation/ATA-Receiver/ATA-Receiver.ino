@@ -87,6 +87,8 @@ void loop()
     if( rf95.recv(buf, &len) )
     {
       digitalWrite(LED_BUILTIN, HIGH);
+      
+      buf[len] = '\0';  // Null terminate the string with # bytes copied
 
       // Emit string without altering, just put a DAT: lead for parsing/errors
       Serial.print("DAT: ");
