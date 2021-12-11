@@ -40,7 +40,8 @@ void setup() {
     unsigned status;
     
     // default settings
-    status = bme.begin(0x76);  // Aliexpress knockoff is at I2C 0x76
+    //status = bme.begin(0x76);  // Aliexpress knockoff is at I2C 0x76
+    status = bme.begin();       // Sparkfun Env Combo BME280 address is default.
     if (!status) {
         Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
         Serial.print("SensorID was: 0x"); Serial.println(bme.sensorID(),16);
