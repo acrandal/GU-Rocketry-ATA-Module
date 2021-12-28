@@ -21,7 +21,7 @@ private:
     Adafruit_NeoPixel * strip;
 
 public:
-    StatusLight() {
+    void begin() {
         strip = new Adafruit_NeoPixel(STATUS_STRIP_LENGTH,
                                       STATUS_LIGHT_PIN,
                                       NEO_RGB + NEO_KHZ800);
@@ -29,7 +29,7 @@ public:
         // Setup the strip and turn it off
         strip->begin();
         strip->show();
-        strip->setBrightness(50);
+        strip->setBrightness(50); 
     }
 
     void setBooting() { setColor(AMBER); }

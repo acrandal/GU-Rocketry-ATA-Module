@@ -16,26 +16,29 @@
  */
 
 #include "StatusLight.h"
+#include "Environmental.h"
 
-StatusLight statusLight;
+StatusLight statusLight = StatusLight();
 
+Environmental env = Environmental();
 
-// the setup function runs once when you press reset or power the board
+// ** ************************************************************************
 void setup() {
-    // initialize digital pin LED_BUILTIN as an output.
     pinMode(LED_BUILTIN, OUTPUT);
 
     Serial.begin(115200);
     delay(1000);
-    Serial.println("Starting up my light!");
-    statusLight = StatusLight();
-    //statusLight.setRed();
+
+    statusLight.begin();
     statusLight.setBooting();
+
+    env.begin();
+    // env.enableVerbose();
     delay(1000);
-    Serial.println("Light started");
 }
 
-// the loop function runs over and over again forever
+
+// ** ************************************************************************
 void loop() {
 
 
@@ -45,4 +48,8 @@ void loop() {
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
     statusLight.setOff();
     delay(1000);                       // wait for a second
+
+    char buf[100];
+    env.getValues(buf);
+    Serial.println(buf);
 }
