@@ -19,10 +19,21 @@
 #include <RH_RF95.h>
 
 // Pin settings for Feather 32u4 board
+/*
 #define RFM95_CS 8
 #define RFM95_RST 4
 #define RFM95_INT 7
-#define RF95_FREQ 915.0
+*/
+
+// Pin settings for Feather M0 RFM9x board
+#define RFM95_CS 8
+#define RFM95_RST 4
+#define RFM95_INT 3
+
+
+// #define RF95_FREQ 915.0
+#define RF95_FREQ 434.0     // currently set for some 400 MHz M0 boards
+
 
 // Create RFM API object
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
@@ -52,7 +63,7 @@ void setup()
   delay(10);
 
   while (!rf95.init()) {
-      Serial.println("DAT: {\"MSG\":\"ATA Receiver Bridge Booting\"}");
+    Serial.println("DAT: {\"MSG\":\"ATA Receiver Bridge Booting\"}");
 
     Serial.println("ERR: {\"MSG\":\"LoRa radio init failed\"}");
     //Serial.println("Uncomment '#define SERIAL_DEBUG' in RH_RF95.cpp for detailed debug info");
