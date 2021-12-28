@@ -24,13 +24,22 @@
 #include <Adafruit_GPS.h>
 
 // ** RFM9x LoRa Radio/Radiohead library setup
-/* for feather32u4 */
+// Pin settings for Feather 32u4 board
+/*
 #define RFM95_CS 8
 #define RFM95_RST 4
 #define RFM95_INT 7
+*/
 
-// Transmission frequency - matches RX bridge setting
-#define RF95_FREQ 915.0
+// Pin settings for Feather M0 RFM9x board
+#define RFM95_CS 8
+#define RFM95_RST 4
+#define RFM95_INT 3
+
+
+// #define RF95_FREQ 915.0
+#define RF95_FREQ 434.0
+
 
 // Radio driver -- Radiohead library
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
@@ -95,6 +104,7 @@ void setup()
       unsigned status;
     
     // default settings
+    /*
     status = bme.begin(0x76);  // Aliexpress knockoff is at I2C 0x76
     if (!status) {
         Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
@@ -105,6 +115,7 @@ void setup()
         Serial.print("        ID of 0x61 represents a BME 680.\n");
         while (1) delay(10);
     }
+    */
 
     // ************** GPS
     Serial.println("Setting up GPS");
@@ -153,12 +164,13 @@ void loop()
     Serial.print(bme.readHumidity());
     Serial.println(" %");
     */
-
+/*
     float alt = bme.readAltitude(SEALEVELPRESSURE_HPA);
-
+*/
     //sprintf(msg, "{\"alt\": \"%s\"}", String(alt, 2).c_str());
     //Serial.println(msg);
-    *msg = "hi";
+    sprintf(msg, "hi");
+//    *msg = "hi";
 
   rf95.send((uint8_t *)msg, strlen(msg));
   rf95.waitPacketSent();
