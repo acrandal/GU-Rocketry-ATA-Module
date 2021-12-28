@@ -119,13 +119,11 @@ public:
 
     // Primary interface to retrieve values
     void getValues(char * res) {
+        res[0] = 0;     // Ensure a null terminated string
         if( myCCS811->dataAvailable() ) {
-            //Calling this function updates the global tVOC and eCO2 variables
-            myCCS811->readAlgorithmResults();
-
+            myCCS811->readAlgorithmResults(); // Update tVOC and eCO2 values
             if(verbose) { dumpReadings(); }
-
-            buildResultString(res);
+            buildResultString(res); // Generate data string
             compensateCO2ForEnv();  // Use BME to correct CCS811 readings
         }
     }

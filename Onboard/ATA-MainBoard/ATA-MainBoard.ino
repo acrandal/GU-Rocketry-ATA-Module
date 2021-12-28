@@ -17,10 +17,11 @@
 
 #include "StatusLight.h"
 #include "Environmental.h"
+#include "IMU.h"
 
 StatusLight statusLight = StatusLight();
-
 Environmental env = Environmental();
+IMU ata_imu = IMU();
 
 // ** ************************************************************************
 void setup() {
@@ -34,6 +35,8 @@ void setup() {
 
     env.begin();
     // env.enableVerbose();
+
+    ata_imu.begin();
     delay(1000);
 }
 
@@ -52,4 +55,6 @@ void loop() {
     char buf[100];
     env.getValues(buf);
     Serial.println(buf);
+
+    ata_imu.getValues(buf);
 }
