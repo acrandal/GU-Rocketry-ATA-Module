@@ -52,9 +52,10 @@ void loop() {
     statusLight.setOff();
     delay(1000);                       // wait for a second
 
-    char buf[100];
+    char buf[120];
     env.getValues(buf);
     Serial.println(buf);
 
     ata_imu.getValues(buf);
+    Serial.println(buf);
 }

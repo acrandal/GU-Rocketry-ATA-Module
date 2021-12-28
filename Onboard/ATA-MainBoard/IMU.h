@@ -39,20 +39,34 @@ public:
 
     void getValues(char * res) {
         res[0] = 0;
-        sensors_event_t orientationData , angVelocityData , linearAccelData, magnetometerData, accelerometerData, gravityData;
+        sensors_event_t orientationData , angVelocityData , linearAccelData, magnetometerData;
         bno->getEvent(&orientationData, Adafruit_BNO055::VECTOR_EULER);
         bno->getEvent(&angVelocityData, Adafruit_BNO055::VECTOR_GYROSCOPE);
         bno->getEvent(&linearAccelData, Adafruit_BNO055::VECTOR_LINEARACCEL);
         bno->getEvent(&magnetometerData, Adafruit_BNO055::VECTOR_MAGNETOMETER);
-        bno->getEvent(&accelerometerData, Adafruit_BNO055::VECTOR_ACCELEROMETER);
-        bno->getEvent(&gravityData, Adafruit_BNO055::VECTOR_GRAVITY);
 
-        printEvent(&orientationData);
-        printEvent(&angVelocityData);
-        printEvent(&linearAccelData);
-        printEvent(&magnetometerData);
-        printEvent(&accelerometerData);
-        printEvent(&gravityData);
+        if(verbose) {
+            printEvent(&orientationData);
+            printEvent(&angVelocityData);
+            printEvent(&linearAccelData);
+            printEvent(&magnetometerData);
+        }
+
+        sprintf(res, "IMU: %d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+                millis(),
+                String(orientationData.orientation.x, 2).c_str(),
+                String(orientationData.orientation.y, 2).c_str(),
+                String(orientationData.orientation.z, 2).c_str(),
+                String(linearAccelData.acceleration.x, 2).c_str(),
+                String(linearAccelData.acceleration.y, 2).c_str(),
+                String(linearAccelData.acceleration.z, 2).c_str(),
+                String(angVelocityData.gyro.x, 2).c_str(),
+                String(angVelocityData.gyro.y, 2).c_str(),
+                String(angVelocityData.gyro.z, 2).c_str(),
+                String(magnetometerData.magnetic.x, 2).c_str(),
+                String(magnetometerData.magnetic.y, 2).c_str(),
+                String(magnetometerData.magnetic.z, 2).c_str()
+            );
     }
 
     void printEvent(sensors_event_t* event) {
