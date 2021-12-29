@@ -18,10 +18,14 @@
 #include "StatusLight.h"
 #include "Environmental.h"
 #include "IMU.h"
+#include "ATA_GPS.h"
+#include "ATA_SD.h"
 
 StatusLight statusLight = StatusLight();
 Environmental env = Environmental();
 IMU ata_imu = IMU();
+ATA_GPS ata_gps = ATA_GPS();
+ATA_SD ata_sd = ATA_SD();
 
 // ** ************************************************************************
 void setup() {
@@ -37,6 +41,14 @@ void setup() {
     // env.enableVerbose();
 
     ata_imu.begin();
+
+    ata_gps.begin();
+    // ata_gps.enableVerbose();
+
+    ata_sd.begin();
+    ata_sd.enableVerbose();
+
+
     delay(1000);
 }
 
@@ -57,5 +69,8 @@ void loop() {
     Serial.println(buf);
 
     ata_imu.getValues(buf);
+    Serial.println(buf);
+
+    ata_gps.getValues(buf);
     Serial.println(buf);
 }

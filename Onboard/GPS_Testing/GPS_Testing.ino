@@ -60,14 +60,29 @@ void loop() // run over and over again
 {
   
   //char c = GPS.read();  // Adds to the GPS object's message buffer
-  GPS.read();
+  // while(GPS.read()) {}
+//  GPS.read();
+
+/*
   if (GPS.newNMEAreceived()) {
     GPS.parse(GPS.lastNMEA());
   }
+*/
 
   // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 200) {
+  if (millis() - timer > 6000) {
     timer = millis(); // reset the timer
+
+    while(GPS.read()) {   // This is scary (potential infinite loop)
+      if (GPS.newNMEAreceived()) {
+        Serial.println("Got a NMEA");
+        GPS.parse(GPS.lastNMEA());
+      }
+    }
+    Serial.println("done GPS serial read");
+
+    
+
 
     /*
     Serial.print("\nTime: ");
@@ -91,7 +106,9 @@ void loop() // run over and over again
     Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
     */
     if (GPS.fix) {
-      Serial.print("Location: ");
+      Serial.print("Fix: ");
+      Serial.print(GPS.fix);
+      Serial.print(" | Location: ");
       Serial.print(GPS.latitude, 6); Serial.print(GPS.lat);
       Serial.print(", ");
       Serial.print(GPS.longitude, 6); Serial.print(GPS.lon);
