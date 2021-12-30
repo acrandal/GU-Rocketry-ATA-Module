@@ -20,12 +20,15 @@
 #include "IMU.h"
 #include "ATA_GPS.h"
 #include "ATA_SD.h"
+#include "ATA_RFM96.h"
 
 StatusLight statusLight = StatusLight();
 Environmental env = Environmental();
 IMU ata_imu = IMU();
 ATA_GPS ata_gps = ATA_GPS();
 ATA_SD ata_sd = ATA_SD();
+ATA_RFM96 ata_rfm96 = ATA_RFM96();
+
 
 // ** ************************************************************************
 void setup() {
@@ -37,6 +40,8 @@ void setup() {
     statusLight.begin();
     statusLight.setBooting();
 
+    ata_rfm96.begin();          // Setup packet radio
+
     env.begin();
     // env.enableVerbose();
 
@@ -45,8 +50,11 @@ void setup() {
     ata_gps.begin();
     // ata_gps.enableVerbose();
 
-    ata_sd.begin();
-    ata_sd.enableVerbose();
+
+
+    // ata_sd.begin();
+    // ata_sd.enableVerbose();
+
 
 
     delay(1000);
@@ -66,11 +74,14 @@ void loop() {
 
     char buf[120];
     env.getValues(buf);
+    ata_rfm96.sendAsync(buf);
     Serial.println(buf);
 
     ata_imu.getValues(buf);
+    ata_rfm96.sendAsync(buf);
     Serial.println(buf);
 
     ata_gps.getValues(buf);
-    Serial.println(buf);
+    ata_rfm96.sendAsync(buf);
+    
 }
