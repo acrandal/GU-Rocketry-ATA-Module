@@ -10,6 +10,6 @@
 
 #define ATA_SD_CHIP_SELECT_PIN A5
 
-
+#define ATA_SD_WRITE_ENABLE_PIN 6
 
 #endif

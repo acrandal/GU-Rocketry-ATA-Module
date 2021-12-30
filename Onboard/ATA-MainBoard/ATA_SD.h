@@ -46,6 +46,8 @@ public:
         sprintf(dataFilename, "undone");    // default name
         datasetNumber = 0;
 
+        pinMode(ATA_SD_WRITE_ENABLE_PIN, INPUT_PULLUP);
+
         Serial.print("Initializing SD card -- ");
         if (!SD.begin(ATA_SD_CHIP_SELECT_PIN)) {
             Serial.println("Card failed, or not present");
@@ -72,12 +74,18 @@ public:
     }
 
     void print(char * str) {
-        if(verbose) { Serial.print(str); }
-        dataFile.print(str);
+        if(digitalRead(ATA_SD_WRITE_ENABLE_PIN) == HIGH) {
+            if(verbose) { Serial.print(str); }
+            dataFile.print(str);
+        }
     }
 
     void close() {
         dataFile.close();
+    }
+
+    void flush() {
+        dataFile.flush();
     }
 };
 
