@@ -51,7 +51,7 @@ void setup() {
     // ata_gps.enableVerbose();
 
     ata_sd.begin();
-    // ata_sd.enableVerbose();
+    ata_sd.enableVerbose();
 
 
 
