@@ -103,13 +103,14 @@ void loop()
 
       // Emit string without altering, just put a DAT: lead for parsing/errors
       // Serial.print("DAT: ");
+      Serial.print("RCV: ");
       Serial.println((char*)buf);
 
       // Also emit the RSSI of the received packet as JSON
       //Serial.print("DAT: {RSSI: ");
-      Serial.print("RSSI: ");
-      Serial.print(rf95.lastRssi(), DEC);
-      Serial.println("}");
+      //Serial.print("RSSI: ");
+      //Serial.print(rf95.lastRssi(), DEC);
+      //Serial.println("}");
 
       digitalWrite(LED_BUILTIN, LOW);
     }

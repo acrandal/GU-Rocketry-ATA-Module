@@ -26,7 +26,7 @@ public:
 
         gps->begin(GPS_BAUD_RATE);
         gps->sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-        gps->sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);     // or 5Hz
+        gps->sendCommand(PMTK_SET_NMEA_UPDATE_5HZ);     // or 5Hz
     }
 
     void enableVerbose() { verbose = true; }

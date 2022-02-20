@@ -74,7 +74,8 @@ public:
     }
 
     void print(char * str) {
-        if(digitalRead(ATA_SD_WRITE_ENABLE_PIN) == HIGH) {
+        //if(digitalRead(ATA_SD_WRITE_ENABLE_PIN) == HIGH) {
+        if( isWriteEnabled() ) {
             if(verbose) { Serial.print(str); }
             dataFile.print(str);
         }
@@ -85,7 +86,13 @@ public:
     }
 
     void flush() {
-        dataFile.flush();
+        if( isWriteEnabled() ) {
+          dataFile.flush();
+        }
+    }
+
+    bool isWriteEnabled() {
+      return (digitalRead(ATA_SD_WRITE_ENABLE_PIN) == HIGH);
     }
 };
 
