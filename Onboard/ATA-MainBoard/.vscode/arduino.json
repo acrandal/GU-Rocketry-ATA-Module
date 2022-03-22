@@ -1,5 +1,6 @@
 {
     "configuration": "opt=small,usbstack=arduino,debug=off",
     "board": "adafruit:samd:adafruit_feather_m0",
-    "programmer": "adafruit:adafruit_jlink"
+    "programmer": "adafruit:adafruit_jlink",
+    "sketch": "ATA-MainBoard.ino"
 }

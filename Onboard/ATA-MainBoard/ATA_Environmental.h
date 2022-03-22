@@ -14,12 +14,12 @@
 #include <SparkFunCCS811.h>
 
 
-#define CCS811_ADDR 0x5B    //Default CCS811 I2C Address
+#define CCS811_ADDR 0x5B    // Default CCS811 I2C Address
 #define BME280_ADDR 0x77    // Default BME280 I2C address
 
 
 // ** Environmental Sensor Package Facade
-class Environmental {
+class ATA_Environmental {
 
 private:
     CCS811 * myCCS811;
@@ -128,7 +128,6 @@ public:
         }
     }
 };
-
 
 
 #endif

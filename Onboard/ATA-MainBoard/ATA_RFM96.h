@@ -13,10 +13,11 @@
 #define RFM95_RST 4
 #define RFM95_INT 3
 
-// #define RF95_FREQ 915.0
+// #define RF95_FREQ 915.0  // Working value for 900 MHz boards
 #define RF95_FREQ 434.0     // currently set for some 400 MHz M0 boards
 
 
+// Packet radio class wrapper for ATA main board
 class ATA_RFM96 {
 private:
     bool verbose;
@@ -64,11 +65,7 @@ public:
             rf95->waitPacketSent();
         }
     }
-
-
 };
-
-
 
 
 #endif

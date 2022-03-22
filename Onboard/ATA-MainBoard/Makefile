@@ -4,7 +4,7 @@
 # Copyright: 2021
 # License: GPL v3.0
 
-PORT=/dev/ttyACM2
+PORT=/dev/ttyACM1
 BAUD=115200
 FQBN=adafruit:samd:adafruit_feather_m0
 SKETCH=ATA-MainBoard

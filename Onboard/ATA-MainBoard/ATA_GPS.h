@@ -1,5 +1,10 @@
 /**
- * GPS wrapper
+ * GPS wrapper header/library
+ * 
+ * Uses a hardware serial interface to read the GPS board
+ * Currently developed around a Feather Ultimate GPS featherwing
+ * https://www.adafruit.com/product/3133
+ * 
  */
 
 #ifndef __ATA_GPS_H
@@ -9,7 +14,6 @@
 
 #define GPSSerial Serial1
 #define GPS_BAUD_RATE 9600
-
 
 
 // ATA's GPS wrapper and interface
@@ -77,9 +81,6 @@ public:
     }
 
 };
-
-
-
 
 
 #endif
