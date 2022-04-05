@@ -20,7 +20,6 @@
 // ** Environmental Sensor Package for Indoor Air Quality
 class ATA_IAQ {
 
-
 private:
     CCS811 * myCCS811;
     bool verbose;
@@ -34,10 +33,10 @@ private:
 
     // Assemble results string for output
     void buildResultString(char * res) {
-        sprintf(res, "ENV: %d,%d,%d",
+        sprintf(res, "IAQ: %ld,%d,%d",
             millis(),
             myCCS811->getCO2(),
-            myCCS811->getTVOC(),
+            myCCS811->getTVOC()
         );
     }
 
@@ -82,11 +81,10 @@ public:
     }
 
 
-}
+};
 
 
 
 
 
 #endif
-
