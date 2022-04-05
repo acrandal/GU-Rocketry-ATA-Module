@@ -55,7 +55,7 @@ public:
 
     // Create output string for logging/transmission
     void buildResultString(char * res) {
-        sprintf(res, "GPS: %d,%d,%s%s,%s%s,%s",
+        sprintf(res, "GPS: %ld,%d,%s%s,%s%s,%s",
                 millis(),
                 gps->fix,
                 String(gps->latitude, 6).c_str(),

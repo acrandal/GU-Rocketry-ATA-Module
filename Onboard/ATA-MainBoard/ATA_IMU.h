@@ -102,7 +102,7 @@ public:
             Serial.print(gyro_data.z);  Serial.println("");
         }
 
-        sprintf(res, "IMU: %d,%d,%d,%d,%d,%d,%d",
+        sprintf(res, "IMU: %ld,%d,%d,%d,%d,%d,%d",
                 millis(),
                 accel_data.x,
                 accel_data.y,

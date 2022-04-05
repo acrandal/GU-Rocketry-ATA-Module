@@ -94,7 +94,7 @@ private:
 
     // Assemble results string for output
     void buildResultString(char * res) {
-        sprintf(res, "ENV: %d,%d,%d,%s,%s,%s,%s",
+        sprintf(res, "ENV: %ld,%d,%d,%s,%s,%s,%s",
             millis(),
             myCCS811->getCO2(),
             myCCS811->getTVOC(),
