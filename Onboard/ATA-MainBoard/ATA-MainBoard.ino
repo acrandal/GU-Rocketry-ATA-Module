@@ -25,6 +25,14 @@
 #include "ATA_SD.h"
 #include "ATA_RFM96.h"
 
+#define TASK_IAQ_INTERVAL_MS 2000               // Min value 1000
+#define TASK_BME_INTERVAL_MS 200
+#define TASK_GPS_INTERVAL_MS 2000               // Min value 1000
+#define TASK_IMU_INTERVAL_MS 50                 // Targeting 20 Hz
+#define TASK_SD_FLUSH_INTERVAL_MS 5000          // Flush buffers
+#define TASK_LED_HEARTBEAT_INTERVAL_MS 2000
+#define TASK_STATUS_LIGHT_OFF_DELAY_MS 60000    // 1 Minute
+
 // Top defines for operational tasks
 Scheduler taskScheduler;
 
@@ -38,13 +46,13 @@ void ataLEDHeartbeatBlink_TaskCallback();
 void ataStatusLightOff_TaskCallback();
 
 // Task Scheduler task definitions for various tasks
-Task taskIAQ(2000, TASK_FOREVER, &ataIAQ_TaskCallback, &taskScheduler, true);
-Task taskBME280(500, TASK_FOREVER, &ataBME280_TaskCallback, &taskScheduler, true);
-Task taskGPS(2000, TASK_FOREVER, &ataGPS_TaskCallback, &taskScheduler, true);
-Task taskIMU(50, TASK_FOREVER, &ataIMU_TaskCallback, &taskScheduler, true);
-Task taskSDFlush(5000, TASK_FOREVER, &ataSDFlush_TaskCallback, &taskScheduler, true);
-Task taskLEDHeartbeat(2000, TASK_FOREVER, &ataLEDHeartbeatBlink_TaskCallback, &taskScheduler, true);
-Task taskStatusLightOff(60000, TASK_ONCE, &ataStatusLightOff_TaskCallback, &taskScheduler, false);
+Task taskIAQ(TASK_IAQ_INTERVAL_MS, TASK_FOREVER, &ataIAQ_TaskCallback, &taskScheduler, true);
+Task taskBME280(TASK_BME_INTERVAL_MS, TASK_FOREVER, &ataBME280_TaskCallback, &taskScheduler, true);
+Task taskGPS(TASK_GPS_INTERVAL_MS, TASK_FOREVER, &ataGPS_TaskCallback, &taskScheduler, true);
+Task taskIMU(TASK_IMU_INTERVAL_MS, TASK_FOREVER, &ataIMU_TaskCallback, &taskScheduler, true);
+Task taskSDFlush(TASK_SD_FLUSH_INTERVAL_MS, TASK_FOREVER, &ataSDFlush_TaskCallback, &taskScheduler, true);
+Task taskLEDHeartbeat(TASK_LED_HEARTBEAT_INTERVAL_MS, TASK_FOREVER, &ataLEDHeartbeatBlink_TaskCallback, &taskScheduler, true);
+Task taskStatusLightOff(TASK_STATUS_LIGHT_OFF_DELAY_MS, TASK_ONCE, &ataStatusLightOff_TaskCallback, &taskScheduler, false);
 
 // Setup hardware driver handles/objects
 ATA_StatusLight statusLight = ATA_StatusLight();
