@@ -6,32 +6,20 @@
  * Temp/Baro/Humid: BME280
  */
 
-#ifndef __ENVIRONMENTAL_H
-#define __ENVIRONMENTAL_H
+#ifndef __ATA_BME280_H
+#define __ATA_BME280_H
 
 #include <Wire.h>
 #include <SparkFunBME280.h>
-#include <SparkFunCCS811.h>
 
-
-#define CCS811_ADDR 0x5B    // Default CCS811 I2C Address
 #define BME280_ADDR 0x77    // Default BME280 I2C address
 
-
 // ** Environmental Sensor Package Facade
-class ATA_Environmental {
+class ATA_BME280 {
 
 private:
-    CCS811 * myCCS811;
     BME280 * myBME280;
     bool verbose;
-
-    void initCCS811() {
-        myCCS811 = new CCS811(CCS811_ADDR);
-        CCS811Core::CCS811_Status_e returnCode = myCCS811->beginWithStatus();
-        Serial.print(F("CCS811 begin exited with: "));
-        Serial.println(myCCS811->statusString(returnCode));
-    }
 
     void initBME280() {
         myBME280 = new BME280();
@@ -52,26 +40,8 @@ private:
         Serial.println(F("BME280 initialized"));
     }
 
-    // Use Temp & Humid to tune CO2 & TVOC readings properly
-    void compensateCO2ForEnv() {
-        float BMEtempC = myBME280->readTempC();
-        float BMEhumid = myBME280->readFloatHumidity();
-        myCCS811->setEnvironmentalData(BMEhumid, BMEtempC);
-    }
-
     // Verbose debugging dump of data
     void dumpReadings() {
-         //getCO2() gets the previously read data from the library
-        Serial.println("CCS811 data:");
-        Serial.print(" CO2 concentration : ");
-        Serial.print(myCCS811->getCO2());
-        Serial.println(" ppm");
-
-        //getTVOC() gets the previously read data from the library
-        Serial.print(" TVOC concentration : ");
-        Serial.print(myCCS811->getTVOC());
-        Serial.println(" ppb");
-
         Serial.println("BME280 data:");
         Serial.print(" Temperature: ");
         Serial.print(myBME280->readTempC(), 2);
@@ -85,19 +55,17 @@ private:
         Serial.print(myBME280->readFloatAltitudeMeters(), 2);
         Serial.println("m");
 
-        Serial.print(" %RH: ");
+        Serial.print(" %Relative Humidity: ");
         Serial.print(myBME280->readFloatHumidity(), 2);
-        Serial.println(" %");
+        Serial.println("%");
 
         Serial.println(); 
     }
 
     // Assemble results string for output
     void buildResultString(char * res) {
-        sprintf(res, "ENV: %d,%d,%d,%s,%s,%s,%s",
+        sprintf(res, "BME: %ld,%s,%s,%s,%s",
             millis(),
-            myCCS811->getCO2(),
-            myCCS811->getTVOC(),
             String(myBME280->readTempC(), 2).c_str(),
             String(myBME280->readFloatPressure(), 2).c_str(),
             String(myBME280->readFloatAltitudeMeters(), 2).c_str(),
@@ -108,9 +76,8 @@ private:
 public:
     void begin() {
         verbose = false;
-        Serial.println(F("Initializing Environmental Package"));
+        Serial.println(F("Initializing BME280 Temp/Pressure/Alt/Humidity Package"));
         Wire.begin();       // Init I2C bus if needed
-        initCCS811();
         initBME280();
     }
 
@@ -120,14 +87,13 @@ public:
     // Primary interface to retrieve values
     void getValues(char * res) {
         res[0] = 0;     // Ensure a null terminated string
-        if( myCCS811->dataAvailable() ) {
-            myCCS811->readAlgorithmResults(); // Update tVOC and eCO2 values
-            if(verbose) { dumpReadings(); }
-            buildResultString(res); // Generate data string
-            compensateCO2ForEnv();  // Use BME to correct CCS811 readings
-        }
+        if(verbose) { dumpReadings(); }
+        buildResultString(res); // Generate data string
+    }
+
+    float getAltitude() {
+      return myBME280->readFloatAltitudeMeters();
     }
 };
-
 
 #endif

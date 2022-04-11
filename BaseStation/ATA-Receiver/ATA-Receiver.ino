@@ -17,6 +17,9 @@
 
 #include <SPI.h>
 #include <RH_RF95.h>
+#include <RHEncryptedDriver.h>
+#include <Speck.h>
+
 
 // Pin settings for Feather 32u4 board
 /*
@@ -37,6 +40,17 @@
 
 // Create RFM API object
 RH_RF95 rf95(RFM95_CS, RFM95_INT);
+
+// Setup encryption
+// See RadioHead rf95_encrypted_client.pde
+//  Uses https://github.com/rweather/arduinolibs/tree/master/libraries/CryptoLW
+Speck myCipher;   // Instanciate a Speck block ciphering
+RHEncryptedDriver myDriver(rf95, myCipher); // Instantiate the driver with those two
+
+//unsigned char encryptkey[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; // The very secret key
+
+// Key is ASCII: "GUASMEROCKETRY!!"
+unsigned char encryptkey[16] = {71, 85, 65, 83, 77, 69, 82, 79, 67, 75, 69, 84, 82, 89, 33, 33};
 
 char msg[255];
 
@@ -71,6 +85,11 @@ void setup()
   }
   Serial.println("DAT: {\"MSG\":\"LoRa radio init OK!\"}");
 
+  // Setting cipher's key
+  Serial.println("DAT: {\"MSG\":\"Setting crypto key\"}");
+  myCipher.setKey(encryptkey, sizeof(encryptkey));
+
+
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
   if (!rf95.setFrequency(RF95_FREQ)) {
     Serial.println("ERR: {\"MSG\":\"setFrequency failed\"}");
@@ -95,7 +114,8 @@ void loop()
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];  // Max is 250 bytes
     uint8_t len = sizeof(buf);
 
-    if( rf95.recv(buf, &len) )
+    //if( rf95.recv(buf, &len) )
+    if( myDriver.recv(buf, &len) )
     {
       digitalWrite(LED_BUILTIN, HIGH);
       

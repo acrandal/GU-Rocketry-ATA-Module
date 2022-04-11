@@ -18,17 +18,27 @@
 #include <TaskScheduler.h>
 
 #include "ATA_StatusLight.h"
-#include "ATA_Environmental.h"
+#include "ATA_BME280.h"
+#include "ATA_IAQ.h"
 #include "ATA_IMU.h"
 #include "ATA_GPS.h"
 #include "ATA_SD.h"
 #include "ATA_RFM96.h"
 
+#define TASK_IAQ_INTERVAL_MS 2000               // Min value 1000
+#define TASK_BME_INTERVAL_MS 200
+#define TASK_GPS_INTERVAL_MS 2000               // Min value 1000
+#define TASK_IMU_INTERVAL_MS 50                 // Targeting 20 Hz
+#define TASK_SD_FLUSH_INTERVAL_MS 5000          // Flush buffers
+#define TASK_LED_HEARTBEAT_INTERVAL_MS 2000
+#define TASK_STATUS_LIGHT_OFF_DELAY_MS 60000    // 1 Minute
+
 // Top defines for operational tasks
 Scheduler taskScheduler;
 
 // Forward definitions for taskScheduler callback functions
-void ataEnvironmental_TaskCallback();
+void ataIAQ_TaskCallback();
+void ataBME280_TaskCallback();
 void ataGPS_TaskCallback();
 void ataIMU_TaskCallback();
 void ataSDFlush_TaskCallback();
@@ -36,16 +46,18 @@ void ataLEDHeartbeatBlink_TaskCallback();
 void ataStatusLightOff_TaskCallback();
 
 // Task Scheduler task definitions for various tasks
-Task taskEnvironmental(2000, TASK_FOREVER, &ataEnvironmental_TaskCallback, &taskScheduler, true);
-Task taskGPS(2000, TASK_FOREVER, &ataGPS_TaskCallback, &taskScheduler, true);
-Task taskIMU(50, TASK_FOREVER, &ataIMU_TaskCallback, &taskScheduler, true);
-Task taskSDFlush(5000, TASK_FOREVER, &ataSDFlush_TaskCallback, &taskScheduler, true);
-Task taskLEDHeartbeat(2000, TASK_FOREVER, &ataLEDHeartbeatBlink_TaskCallback, &taskScheduler, true);
-Task taskStatusLightOff(60000, TASK_ONCE, &ataStatusLightOff_TaskCallback, &taskScheduler, false);
+Task taskIAQ(TASK_IAQ_INTERVAL_MS, TASK_FOREVER, &ataIAQ_TaskCallback, &taskScheduler, true);
+Task taskBME280(TASK_BME_INTERVAL_MS, TASK_FOREVER, &ataBME280_TaskCallback, &taskScheduler, true);
+Task taskGPS(TASK_GPS_INTERVAL_MS, TASK_FOREVER, &ataGPS_TaskCallback, &taskScheduler, true);
+Task taskIMU(TASK_IMU_INTERVAL_MS, TASK_FOREVER, &ataIMU_TaskCallback, &taskScheduler, true);
+Task taskSDFlush(TASK_SD_FLUSH_INTERVAL_MS, TASK_FOREVER, &ataSDFlush_TaskCallback, &taskScheduler, true);
+Task taskLEDHeartbeat(TASK_LED_HEARTBEAT_INTERVAL_MS, TASK_FOREVER, &ataLEDHeartbeatBlink_TaskCallback, &taskScheduler, true);
+Task taskStatusLightOff(TASK_STATUS_LIGHT_OFF_DELAY_MS, TASK_ONCE, &ataStatusLightOff_TaskCallback, &taskScheduler, false);
 
 // Setup hardware driver handles/objects
 ATA_StatusLight statusLight = ATA_StatusLight();
-ATA_Environmental ata_env = ATA_Environmental();
+ATA_BME280 ata_bme280 = ATA_BME280();
+ATA_IAQ ata_iaq = ATA_IAQ();
 ATA_IMU ata_imu = ATA_IMU();
 ATA_GPS ata_gps = ATA_GPS();
 ATA_SD ata_sd = ATA_SD();
@@ -67,7 +79,11 @@ void initializeDevices() {
     statusLight.setBooting(); delay(bootingDelay);
 
     statusLight.setChecking(); delay(checkingDelay);
-    ata_env.begin();            // Environmental monitoring initialized
+    ata_bme280.begin();         // Barmometric pressure / altitude init
+    statusLight.setBooting(); delay(bootingDelay);
+
+    statusLight.setChecking(); delay(checkingDelay);
+    ata_iaq.begin();            // Indoor air quality sensor init
     statusLight.setBooting(); delay(bootingDelay);
 
     statusLight.setChecking(); delay(checkingDelay);
@@ -123,10 +139,15 @@ void loop() {
     //delay(10);  // Tiny "polite" delay
 }
 
-
 // TaskScheduler callback functions/tasks
-void ataEnvironmental_TaskCallback() {
-    ata_env.getValues(buf);
+void ataIAQ_TaskCallback() {
+    ata_iaq.getValues(buf);
+    ata_rfm96.sendAsync(buf);
+    ata_sd.println(buf);
+}
+
+void ataBME280_TaskCallback() {
+    ata_bme280.getValues(buf);
     ata_rfm96.sendAsync(buf);
     ata_sd.println(buf);
 }
@@ -136,7 +157,6 @@ void ataGPS_TaskCallback() {
     ata_rfm96.sendAsync(buf);
     ata_sd.println(buf);
 }
-
 
 void ataIMU_TaskCallback() {
     ata_imu.getValues(buf);
@@ -159,7 +179,7 @@ void ataLEDHeartbeatBlink_TaskCallback() {
     }
 }
 
-// Runs once @ 10 seconds in to turn off the status light
+// Runs once @ after a while to turn off the status light
 //  This saves a lot of power during flight
 void ataStatusLightOff_TaskCallback() {
     statusLight.setOff();

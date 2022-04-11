@@ -9,6 +9,7 @@ BAUD=115200
 FQBN=adafruit:samd:adafruit_feather_m0
 SKETCH=ATA-MainBoard
 
+all: build
 
 build:
 	arduino-cli compile -v --fqbn $(FQBN) $(SKETCH)
@@ -18,6 +19,8 @@ upload:
 	sleep 1		# To let the arduino HUP before next ops
 
 reload: build upload
+
+install: upload
 
 view:
 	screen $(PORT) $(BAUD)
