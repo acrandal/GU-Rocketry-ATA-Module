@@ -130,3 +130,11 @@ dmypy.json
 
 # Not my random CAD thrashing
 CADTemp/
+*.FCStd1
+*.stl
+
+# VIM swap files
+*.swp
+
+
+
