@@ -1,7 +1,7 @@
 /*
  * ATA Receiver Bridge
  * 
- * Alternative To Aluminum Telemetry & Environment Payload
+ * Alternative To Aluminum (ATA) Telemetry & Environment Payload
  * 
  * Gonzaga University ASME Rocketry Club
  *   2021 competition rocket payload
@@ -11,14 +11,14 @@
  * @license GPL v3
  * 
  * Hardware:
- *  Adafruit Feather 32u4 LoRa Radio (RFM9x) -- https://www.adafruit.com/product/3078
- *  900MHz spring antenna
+ *  Adafruit Feather M0 LoRa Radio (RFM9x) -- https://www.adafruit.com/product/3179
+ *  433 MHz spring antenna
  */
 
 #include <SPI.h>
-#include <RH_RF95.h>
-#include <RHEncryptedDriver.h>
-#include <Speck.h>
+#include <RH_RF95.h>              // RadioHead Arduino RF library
+#include <RHEncryptedDriver.h>    // RadioHead encryption shim / encoder / decoder
+#include <Speck.h>                // Speck encryption library - https://rweather.github.io/arduinolibs/classSpeck.html
 
 
 // Pin settings for Feather 32u4 board
@@ -44,8 +44,8 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);
 // Setup encryption
 // See RadioHead rf95_encrypted_client.pde
 //  Uses https://github.com/rweather/arduinolibs/tree/master/libraries/CryptoLW
-Speck myCipher;   // Instanciate a Speck block ciphering
-RHEncryptedDriver myDriver(rf95, myCipher); // Instantiate the driver with those two
+Speck speckCipher;   // Instanciate a Speck block ciphering
+RHEncryptedDriver rf95EncryptedDriver(rf95, speckCipher); // Instantiate the driver with those two
 
 //unsigned char encryptkey[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; // The very secret key
 
@@ -87,8 +87,7 @@ void setup()
 
   // Setting cipher's key
   Serial.println("DAT: {\"MSG\":\"Setting crypto key\"}");
-  myCipher.setKey(encryptkey, sizeof(encryptkey));
-
+  speckCipher.setKey(encryptkey, sizeof(encryptkey));
 
   // Defaults after init are 434.0MHz, modulation GFSK_Rb250Fd250, +13dbM
   if (!rf95.setFrequency(RF95_FREQ)) {
@@ -98,7 +97,6 @@ void setup()
 
   sprintf(msg, "DAT: {\"MSG\":\"Set Freq to: %s\"}", String(RF95_FREQ, 2).c_str());
   Serial.println(msg);
-  //Serial.print("DAT: {\"MSG\":\"Set Freq to: "); Serial.println(RF95_FREQ);
 
   rf95.setTxPower(23, false);
 
@@ -106,16 +104,15 @@ void setup()
 }
 
 
-// ** **********************************************************************************
-void loop()
-{
+// *************************************************************************************************
+// ** Check if radio has data & print it out to Serial
+void handleRF95Receive() {
   if( rf95.available() )
   {
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];  // Max is 250 bytes
     uint8_t len = sizeof(buf);
 
-    //if( rf95.recv(buf, &len) )
-    if( myDriver.recv(buf, &len) )
+    if( rf95EncryptedDriver.recv(buf, &len) )
     {
       digitalWrite(LED_BUILTIN, HIGH);
       
@@ -127,9 +124,9 @@ void loop()
       Serial.println((char*)buf);
 
       // Also emit the RSSI of the received packet as JSON
-      //Serial.print("DAT: {RSSI: ");
-      //Serial.print("RSSI: ");
-      //Serial.print(rf95.lastRssi(), DEC);
+      //Serial.print("DAT: {\"RSSI\": ");
+      Serial.print("RCV: RSSI: ");
+      Serial.println(rf95.lastRssi(), DEC);
       //Serial.println("}");
 
       digitalWrite(LED_BUILTIN, LOW);
@@ -141,12 +138,21 @@ void loop()
   }
 }
 
+// ** Serial echo/command handler
+void handleSerialReceive() {
+  Serial.setTimeout(20);      // Check for bytes REALLY FAST (we don't care what they are)
+  if(Serial.available() > 0) {
+    Serial.println("DAT: {\"ID\": \"ATA-Receiver\"}");
+    String dataRead = Serial.readString();  // Empty buffer for next loop
+    //Serial.println(dataRead);
+  }
+  Serial.setTimeout(1000);    // Reset to default timeout - prevents programming interrupt troubles
+}
 
-// ** garbage dump
-      //RH_RF95::printBuffer("Received: ", buf, len);  // Prints raw ASCII/byte values
-      
-      // Send a reply
-      //uint8_t data[] = "And hello back to you";
-      //rf95.send(data, sizeof(data));
-      //rf95.waitPacketSent();
-      //Serial.println("Sent a reply");
+
+// ** **********************************************************************************
+void loop()
+{
+  handleRF95Receive();        // Check radio, print if data
+  handleSerialReceive();      // Check for incoming serial in buffer - echo/control
+}
