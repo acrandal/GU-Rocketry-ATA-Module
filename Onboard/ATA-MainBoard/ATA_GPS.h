@@ -15,6 +15,8 @@
 #define GPSSerial Serial1
 #define GPS_BAUD_RATE 9600
 
+#define TIME_24_HOUR true   // Use 24 hour GMS time
+
 
 // ATA's GPS wrapper and interface
 class ATA_GPS {
@@ -53,16 +55,32 @@ public:
 
     }
 
+    void buildDateTime(char * dateTimeCstrBuffer) {
+        sprintf(dateTimeCstrBuffer, "%d.%02d.%02d-%02d:%02d:%02d",
+          gps->year + 2000,
+          gps->month,
+          gps->day,
+          gps->hour,
+          gps->minute,
+          gps->seconds
+         );
+    }
+
     // Create output string for logging/transmission
     void buildResultString(char * res) {
-        sprintf(res, "GPS: %ld,%d,%s%s,%s%s,%s",
+        char dateTimeCstrBuffer[40] = "unk";
+        buildDateTime(dateTimeCstrBuffer);
+        sprintf(res, "GPS: %ld,%d,%s,%s%s,%s%s,%s,%s,%s",
                 millis(),
                 gps->fix,
+                dateTimeCstrBuffer,
                 String(gps->latitude, 6).c_str(),
                 String(gps->lat).c_str(),
                 String(gps->longitude, 6).c_str(),
                 String(gps->lon).c_str(),
-                String(gps->altitude,2).c_str()
+                String(gps->altitude,2).c_str(),
+                String(gps->speed,2).c_str(),
+                String(gps->angle,2).c_str()
             );
     }
 
@@ -74,8 +92,8 @@ public:
         Serial.print(gps->latitude, 6); Serial.print(gps->lat);
         Serial.print(", ");
         Serial.print(gps->longitude, 6); Serial.print(gps->lon);
-        //Serial.print("Speed (knots): "); Serial.println(GPS.speed);
-        //Serial.print("Angle: "); Serial.println(GPS.angle);
+        Serial.print("Speed (knots): "); Serial.println(gps->speed);
+        Serial.print("Angle: "); Serial.println(gps->angle);
         Serial.print("  | Altitude: "); Serial.println(gps->altitude);
         //Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
     }
